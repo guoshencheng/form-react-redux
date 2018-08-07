@@ -17,19 +17,6 @@ function only(rules: Rule<any>[]): any {
   return result;
 }
 
-export function ModifyChildren(children?: JSX.Element[]): JSX.Element[] | JSX.Element | undefined {
-  if (!children) return children;
-  if (Array.isArray(children)) {
-    if (children.length > 1) {
-      return children;
-    } else {
-      return children[0];
-    }
-  } else {
-    return children;
-  }
-}
-
 export interface RuleOption<T> {
   key: string;
   message: string | ((_: T) => string);
@@ -41,6 +28,17 @@ export interface FormField<T> {
   vaild: boolean;
   message: string;
   value: T;
+}
+
+export type FormAction<T> = (_: T) => {
+  type: string;
+  payload?: T
+}
+
+export type FormActions = {
+  fill: FormAction<undefined>;
+  reset: FormAction<any>;
+  [key: string]: FormAction<any>
 }
 
 export class Rule<T> {
@@ -118,5 +116,23 @@ export class FormReducer<State> {
       return handler(state, action.payload);
     }
     return state;
+  }
+
+  actions(): FormActions {
+    const actions = this.rules.reduce((pre, rule) => {
+      pre[rule.key] = payload => ({
+        type: `${prefix}/${this.name}/CHANGE_FIELD_${toUnderscore(rule.key)}`,
+        payload,
+      });
+      return pre;
+    }, {}) as FormActions;
+    actions.reset = () => ({
+      type: `${prefix}/${this.name}/RESET`,
+    });
+    actions.fill = payload => ({
+      type: `${prefix}/${this.name}/FILL`,
+      payload,
+    });
+    return actions;
   }
 }
