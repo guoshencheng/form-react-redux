@@ -16,8 +16,8 @@ function only(rules: Rule<any>[]): any {
 export interface RuleOption<T> {
   key: string;
   message: string | ((_: T) => string);
-  validate: ((_: T) => boolean);
-  defaultValue: T,
+  validate?: ((_: T) => boolean);
+  defaultValue?: T,
 }
 
 export interface FormField<T> {
@@ -26,13 +26,13 @@ export interface FormField<T> {
   value: T;
 }
 
-export type FormAction<T> = (_: T) => {
+export type FormAction<T> = (_?: T) => {
   type: string;
   payload?: T
 }
 
 export type FormActions = {
-  fill: FormAction<undefined>;
+  fill: FormAction<any>;
   reset: FormAction<any>;
   [key: string]: FormAction<any>
 }
@@ -73,7 +73,7 @@ export interface FormModelOptions {
 
 export type FormReduxReducer<S, D> = (state: S, value?: D) => S;
 
-export class FormReducer<State> {
+export class FormModel<State> {
   rules: Rule<any>[];
   name: string;
   defaultState: State
@@ -125,7 +125,7 @@ export class FormReducer<State> {
     actions.reset = () => ({
       type: `${prefix}/${this.name}/RESET`,
     });
-    actions.fill = payload => ({
+    actions.fill = (payload: any) => ({
       type: `${prefix}/${this.name}/FILL`,
       payload,
     });
