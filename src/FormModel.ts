@@ -1,10 +1,6 @@
 import { Reducer } from 'redux';
-
-const prefix = '@/FORM_REDUCER';
-
-const toUnderscore = (origin: string): string => origin
-  .replace(/\.?([A-Z])/g, (x, y) => `_${y.toLowerCase()}`)
-  .replace(/^_/, '').toUpperCase();
+import { prefix } from './constants';
+import { toUnderscore } from './util';
 
 function only(rules: Rule<any>[]): any {
   const result = {};

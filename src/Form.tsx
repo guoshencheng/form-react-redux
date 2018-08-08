@@ -1,4 +1,8 @@
 import * as React from 'react';
+import { Fragment } from 'react';
+import { prefix } from './constants';
+import { toUnderscore } from './util';
+import { connect as defaultConnect, Connect, MapStateToPropsParam, MapDispatchToPropsParam } from 'react-redux';
 
 export function ModifyChildren(children?: JSX.Element[]): JSX.Element[] | JSX.Element | undefined {
   if (!children) return children;
@@ -13,8 +17,8 @@ export function ModifyChildren(children?: JSX.Element[]): JSX.Element[] | JSX.El
   }
 }
 
-const buildChildren = (children: React.ReactChildren , name, form, dispatch) => ModifyChildren(
-  React.Children.map(children, (element: React.ReactChild) => {
+const buildChildren = (children: React.ReactElement<any>, name, form, dispatch) => ModifyChildren(
+  React.Children.map(children, (element: React.ReactElement<any>) => {
     if (!element.props) {
       return element;
     }
@@ -51,3 +55,34 @@ const buildChildren = (children: React.ReactChildren , name, form, dispatch) => 
     );
   }),
 );
+
+export interface CreateFormOptions {
+  name: string
+  connect: Connect
+  mapStateToProps?: MapStateToPropsParam<any, any, any>,
+  mapActionToProps?: MapDispatchToPropsParam<any, any>,
+}
+
+export const CreateForm = ({
+  name,
+  connect,
+  mapStateToProps,
+  mapActionToProps,
+}: CreateFormOptions) => {
+  connect = connect || defaultConnect;
+  const mapState = (state, ownProps) => {
+    const origin = mapStateToProps && mapStateToProps(state, ownProps)
+    return {
+      ...origin,
+      form: state.form[name]
+    }
+  };
+  const element = ({ form, children, dispatch }) => (
+    <Fragment>
+    {
+      buildChildren(children, name, form, dispatch)
+    }
+    </Fragment>
+  )
+  return connect(mapState, mapActionToProps)(element);
+}
