@@ -58,7 +58,7 @@ const buildChildren = (children: React.ReactElement<any>, name, form, dispatch) 
 
 export interface CreateFormOptions {
   name: string
-  connect: Connect
+  connect?: Connect
   mapStateToProps?: MapStateToPropsParam<any, any, any>,
   mapActionToProps?: MapDispatchToPropsParam<any, any>,
 }
@@ -71,7 +71,7 @@ export const CreateForm = ({
 }: CreateFormOptions) => {
   connect = connect || defaultConnect;
   const mapState = (state, ownProps) => {
-    const origin = mapStateToProps && mapStateToProps(state, ownProps)
+    const origin = mapStateToProps && mapStateToProps(state, ownProps) || {}
     return {
       ...origin,
       form: state.form[name]
